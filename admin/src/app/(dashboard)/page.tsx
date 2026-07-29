@@ -1,12 +1,26 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Utensils, IndianRupee, ShoppingBag, Star, Send } from 'lucide-react';
+import { Utensils, Star, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StatsCard from '../../components/StatsCard';
 import StatusToggle from '../../components/StatusToggle';
 import api from '../../lib/api';
 import { useSocket } from '../../hooks/useSocket';
 import { CanteenStatus } from '../../types';
+
+function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star
+          key={s}
+          size={size}
+          className={s <= Math.round(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -15,18 +29,28 @@ export default function Dashboard() {
   const [broadcastInput, setBroadcastInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [avgRating, setAvgRating] = useState<string>('0.0');
+  const [totalReviews, setTotalReviews] = useState<number>(0);
 
   const fetchData = async () => {
     try {
-      const [statsRes, ordersRes, statusRes] = await Promise.all([
+      const [statsRes, ordersRes, statusRes, reviewsRes] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/stats/recent-orders'),
-        api.get('/canteen/status')
+        api.get('/canteen/status'),
+        api.get('/reviews'),
       ]);
       setStats(statsRes.data);
       setRecentOrders(ordersRes.data.orders);
       setCanteenStatus(statusRes.data);
       setBroadcastInput(statusRes.data.broadcast_message || '');
+      const rvs: any[] = reviewsRes.data.reviews ?? [];
+      setTotalReviews(rvs.length);
+      setAvgRating(
+        rvs.length > 0
+          ? (rvs.reduce((s: number, r: any) => s + r.rating, 0) / rvs.length).toFixed(1)
+          : '0.0'
+      );
       setLoading(false);
     } catch (error) {
       toast.error('Failed to load dashboard data');
@@ -123,7 +147,20 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatsCard title="Total Menu Items" value={stats?.total_items || 0} icon={Utensils} />
-        <StatsCard title="Student Rating" value="5.0 / 5.0" icon={Star} />
+        <div className="bg-card rounded-xl border border-border p-5 flex items-center gap-4">
+          <div className="p-3 rounded-xl bg-yellow-500/10">
+            <Star size={24} className="text-yellow-400 fill-yellow-400" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-400 mb-1">Student Rating</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-black text-white">{avgRating}</span>
+              <span className="text-sm text-gray-500">/ 5</span>
+            </div>
+            <StarRating rating={Number(avgRating)} size={13} />
+            <p className="text-xs text-gray-600 mt-0.5">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
