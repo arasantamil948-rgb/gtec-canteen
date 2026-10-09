@@ -63,6 +63,21 @@ const io = new Server(server, {
 // Setup Socket.IO and Events
 setupSocket(io);
 
+// Root Route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'online',
+    message: '🌿 GTEC Pure Veg Canteen Backend API is running successfully!',
+    endpoints: {
+      health: '/health',
+      menu: '/api/v1/menu',
+      canteenStatus: '/api/v1/canteen/status',
+    },
+    adminDashboard: 'https://gtec-canteen-college.vercel.app',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health Check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'GTEC Pure Veg Canteen Server is running' });
