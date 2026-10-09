@@ -1,6 +1,6 @@
 class ApiConfig {
-  static const String baseUrl = 'https://gtec-canteen-college.onrender.com/api/v1';
-  static const String socketUrl = 'https://gtec-canteen-college.onrender.com';
+  static const String baseUrl = 'https://gtec-canteen-rnlu.onrender.com/api/v1';
+  static const String socketUrl = 'https://gtec-canteen-rnlu.onrender.com';
 
   // Auth
   static const String login   = '/auth/login';

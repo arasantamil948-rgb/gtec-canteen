@@ -19,7 +19,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) return;
 
     const token = localStorage.getItem('token');
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://gtec-canteen-college.onrender.com';
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://gtec-canteen-rnlu.onrender.com';
     
     const newSocket = io(socketUrl, {
       auth: { token },
